@@ -1,12 +1,15 @@
+const randomString = () => {
+  let random = Math.random().toString(36).substring(2,8);
+  return random;
+};
+
+
 const express = require('express');
 const app = express();
 const PORT = 8080;
 const bodyParser = require('body-parser');
 
-const randomString = () => {
-  let random = Math.random().toString(36).substring(2,8);
-  return random;
-};
+
 
 app.use(bodyParser.urlencoded({extended: true}));
 
@@ -25,8 +28,11 @@ app.get('/', (req,res) => {
   res.send('Hello!');
 });
 
+
 app.get('/urls/:shortURL', (req,res) => {
-  let templateVars = { shortURL: req.params.shortURL, longURL: urlDatabase};
+  let templateVars = { 
+    shortURL: req.params.shortURL, 
+    longURL: urlDatabase};
   res.render("urls_show", templateVars);
 });
 
@@ -44,8 +50,9 @@ app.get('/hello', (req,res) => {
 });
 
 app.post('/urls', (req,res) => {
-  console.log(req.body);
-  res.send("OK");
+  const shortURL = randomString();
+  urlDatabase[shortURL] = req.body.longURL;
+  res.send(`ok. Short URL: ${JSON.stringify(shortURL)}`);
 });
  
 
