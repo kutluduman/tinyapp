@@ -1,6 +1,9 @@
 const express = require('express');
 const app = express();
 const PORT = 8080;
+const bodyParser = require('body-parser');
+
+app.use(bodyParser.urlencoded({extended: true}));
 
 app.set('view engine', 'ejs');
 
@@ -33,6 +36,11 @@ app.get('/urls.json', (req,res) => {
 
 app.get('/hello', (req,res) => {
   res.send("<html><body>Hello <b>World</b></body></html>\n");
+});
+
+app.post('/urls', (req,res) => {
+  console.log(req.body);
+  res.send("OK");
 });
  
 
