@@ -8,6 +8,7 @@ const express = require('express');
 const app = express();
 const PORT = 8080;
 const bodyParser = require('body-parser');
+const cookieParser = require('cookie-parser')
 
 
 
@@ -55,7 +56,6 @@ app.get('/urls/:shortURL', (req,res) => {
 });
 
 app.post('/urls', (req,res) => {
-  console.log(req.body);
   const shortURL = randomString();
   urlDatabase[shortURL] = req.body.longURL;
   res.redirect(`/urls/${shortURL}`);
