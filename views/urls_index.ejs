@@ -27,7 +27,8 @@
           <tr>
             <td><%= url %></td>
             <td><%= urls[url] %></td>
-            <td><form method="POST" action="/urls/<%= url %>/delete"><button style="color: #B00000; background-color: white; border: 1px solid #B00000; border-radius: 10%">Delete</button></form></td>
+            <form class="form-inline" method="POST" action="/urls/<%= url %>?_method=DELETE">
+              <td><button type="submit" class="btn btn-outline-danger">Delete</button></td>
           </tr>
         <% } %>
       </tbody>
