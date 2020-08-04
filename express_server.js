@@ -8,7 +8,7 @@ const express = require('express');
 const app = express();
 const PORT = 8080;
 const bodyParser = require('body-parser');
-const cookieParser = require('cookie-parser')
+const cookieParser = require('cookie-parser');
 
 
 app.use(bodyParser.urlencoded({extended: true}));
@@ -32,7 +32,7 @@ app.get('/', (req,res) => {
 
 app.get('/urls', (req,res) => {
   console.log(req.cookies);
-  let templateVars = { 
+  let templateVars = {
     username : req.cookies['username'],
     urls : urlDatabase
   };
