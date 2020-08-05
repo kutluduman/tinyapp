@@ -130,16 +130,16 @@ app.get('/register', (req,res) => {
 });
 
 app.post('/register', (req,res) => {
-  if(req.body.email === '' || req.body.password === '' || isEmailRegistered(req.body.email)) {
+  if (req.body.email === '' || req.body.password === '' || isEmailRegistered(req.body.email)) {
     res.status(400);
     res.redirect('/register');
   } else {
-  let userId = randomString();
-  users[userId] = {
-    id: userId,
-    email: req.body.email,
-    password: req.body.password
-  };
+    let userId = randomString();
+    users[userId] = {
+      id: userId,
+      email: req.body.email,
+      password: req.body.password
+    };
     res.cookie('user_id', userId);
     res.redirect('/urls');
   }
