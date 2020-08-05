@@ -127,7 +127,14 @@ app.get('/register', (req,res) => {
 });
 
 app.post('/register', (req,res) => {
-  
+  let userID = randomString();
+  users[userID] = {
+    id: userId,
+    email: req.body.email,
+    password: req.body.password
+  };
+    res.cookie('user_id', userId);
+    res.redirect('/urls');
 });
 
 
