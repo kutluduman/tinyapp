@@ -61,7 +61,6 @@ app.get('/', (req,res) => {
 });
 
 app.get('/urls', (req,res) => {
-  console.log(req.cookies);
   let templateVars = {
     user: users[req.cookies['user_id']],
     urls : urlDatabase
@@ -83,7 +82,6 @@ app.get("/u/:shortURL", (req, res) => {
 });
 
 app.get('/urls/:shortURL', (req,res) => {
-  console.log(req.cookies);
   let templateVars = {
     user: users[req.cookies['user_id']],
     shortURL: req.params.shortURL,
