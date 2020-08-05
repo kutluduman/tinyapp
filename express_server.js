@@ -92,6 +92,11 @@ app.get('/urls/:shortURL', (req,res) => {
   res.render("urls_show", templateVars);
 });
 
+app.get('/login', (req,res) => {
+  let templateVars = { user : users[req.cookies['user_id']] };
+  res.render('login', templateVars);
+});
+
 app.post('/urls', (req,res) => {
   const shortURL = randomString();
   urlDatabase[shortURL] = req.body.longURL;
@@ -113,10 +118,14 @@ app.post("/urls/:shortURL/update", (req, res) => {
 });
 
 app.post('/login', (req,res) => {
-  let templateVars = {
-    user: users[req.cookies['user_id']]
-  };
-  res.render("login", templateVars);
+  let user = isEmailRegistered(req.body.email);
+  if (user.password !== req.body.password || !user) {
+    res.status(403);
+    res.redirect('/login');
+  } else {
+    res.cookie('user_id',user.id);
+    res.redirect('/urls');
+  }
 });
 
 app.post('/logout', (req,res) => {
