@@ -24,7 +24,10 @@ const randomString = () => {
 };
 
 
-const isRegistered = (email) => {
+/*
+This function checks if there is an email that is same as users object email
+*/
+const isEmailRegistered = (email) => {
   for (const user in users) {
     if (users[user].email === email) {
       return users[user];
@@ -127,14 +130,19 @@ app.get('/register', (req,res) => {
 });
 
 app.post('/register', (req,res) => {
-  let userID = randomString();
-  users[userID] = {
+  if(req.body.email === '' || req.body.password === '' || isEmailRegistered(req.body.email)) {
+    res.status(400);
+    res.redirect('/register');
+  } else {
+  let userId = randomString();
+  users[userId] = {
     id: userId,
     email: req.body.email,
     password: req.body.password
   };
     res.cookie('user_id', userId);
     res.redirect('/urls');
+  }
 });
 
 
