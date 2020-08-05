@@ -1,8 +1,40 @@
+const urlDatabase = {
+  "b2xVn2": "http://www.lighthouselabs.ca",
+  "9sm5xK": "http://www.google.com"
+};
+
+
+const users = {
+  "userRandomID": {
+    id: "userRandomID",
+    email: "user@example.com",
+    password: "purple-monkey-dinosaur"
+  },
+  "user2RandomID": {
+    id: "user2RandomID",
+    email: "user2@example.com",
+    password: "dishwasher-funk"
+  }
+};
+
+
 const randomString = () => {
   let random = Math.random().toString(36).substring(2,8);
   return random;
 };
 
+
+/*
+This function checks if there is an email that is same as users object email
+*/
+const isEmailRegistered = (email) => {
+  for (const user in users) {
+    if (users[user].email === email) {
+      return users[user];
+    }
+  }
+  return false;
+};
 
 const express = require('express');
 const app = express();
@@ -17,13 +49,11 @@ app.use(cookieParser());
 
 
 
-const urlDatabase = {
-  "b2xVn2": "http://www.lighthouselabs.ca",
-  "9sm5xK": "http://www.google.com"
-};
-
 app.get('/urls/new', (req,res) => {
-  res.render("urls_new");
+  let templateVars = {
+    user: users[req.cookies['user_id']]
+  };
+  res.render("urls_new", templateVars);
 });
 
 app.get('/', (req,res) => {
@@ -31,9 +61,8 @@ app.get('/', (req,res) => {
 });
 
 app.get('/urls', (req,res) => {
-  console.log(req.cookies);
   let templateVars = {
-    username : req.cookies['username'],
+    user: users[req.cookies['user_id']],
     urls : urlDatabase
   };
   res.render('urls_index.ejs',templateVars);
@@ -53,13 +82,17 @@ app.get("/u/:shortURL", (req, res) => {
 });
 
 app.get('/urls/:shortURL', (req,res) => {
-  console.log(req.cookies);
   let templateVars = {
-    username: req.cookies['username'],
+    user: users[req.cookies['user_id']],
     shortURL: req.params.shortURL,
     longURL: urlDatabase[req.param.shortURL]
   };
   res.render("urls_show", templateVars);
+});
+
+app.get('/login', (req,res) => {
+  let templateVars = { user : users[req.cookies['user_id']] };
+  res.render('login', templateVars);
 });
 
 app.post('/urls', (req,res) => {
@@ -83,13 +116,40 @@ app.post("/urls/:shortURL/update", (req, res) => {
 });
 
 app.post('/login', (req,res) => {
-  res.cookie('username', req.body.username);
-  res.redirect('/urls');
+  let user = isEmailRegistered(req.body.email);
+  if (user.password !== req.body.password || !user) {
+    res.status(403);
+    res.redirect('/login');
+  } else {
+    res.cookie('user_id',user.id);
+    res.redirect('/urls');
+  }
 });
 
 app.post('/logout', (req,res) => {
-  res.clearCookie('username');
+  res.clearCookie('user_id');
   res.redirect('/urls');
+});
+
+app.get('/register', (req,res) => {
+  let templateVars = {user: users[req.cookies['user_id']]};
+  res.render('register', templateVars);
+});
+
+app.post('/register', (req,res) => {
+  if (req.body.email === '' || req.body.password === '' || isEmailRegistered(req.body.email)) {
+    res.status(400);
+    res.redirect('/register');
+  } else {
+    let userId = randomString();
+    users[userId] = {
+      id: userId,
+      email: req.body.email,
+      password: req.body.password
+    };
+    res.cookie('user_id', userId);
+    res.redirect('/urls');
+  }
 });
 
 
