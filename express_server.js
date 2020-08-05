@@ -23,7 +23,10 @@ const urlDatabase = {
 };
 
 app.get('/urls/new', (req,res) => {
-  res.render("urls_new");
+  let varTemplate = {
+    username: req.cookies['username']
+  };
+  res.render("urls_new", varTemplate);
 });
 
 app.get('/', (req,res) => {
@@ -92,6 +95,10 @@ app.post('/logout', (req,res) => {
   res.redirect('/urls');
 });
 
+app.get('/register', (req,res) => {
+  let varTemplate = {username : req.cookies['username']};
+  res.render('register', varTemplate);
+});
 
 app.listen(PORT, () => {
   console.log(`Example app listening on port ${PORT}!`);
