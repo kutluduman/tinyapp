@@ -18,14 +18,14 @@ app.use(cookieSession({
 }));
 
 /*
-Retrives the urlDatabase object as JSON. 
+Retrives the urlDatabase object as JSON.
 */
 app.get('/urls.json', (req,res) => {
   res.json(urlDatabase);
 });
 
 /*
-Helps to retrieve information from users object as JSON. The main purpose was to see
+Helps to retrieve information from users object as JSON. The main purpose is to see
 whether the passwords were hashed or not.
 */
 app.get('/users.json', (req,res) => {
@@ -96,7 +96,8 @@ app.get('/urls/:shortURL', (req,res) => {
 });
 
 /*
-If logged in, redirects to /urls page.
+If logged in, redirects to /urls page, if not,
+redirects to /login page.
 */
 app.get('/login', (req,res) => {
   if (req.session['user_id']) {
