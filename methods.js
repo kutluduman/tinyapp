@@ -35,4 +35,16 @@ const isEmailRegistered = (email) => {
   return false;
 };
 
+
+const urlsForUser = (id) => {
+  let userUrls = {};
+  for(const shortUrl in urlDatabase) {
+    if (urlDatabase[shortUrl].userID === id) {
+      userUrls[shortUrl] = urlDatabase[shortUrl];
+    }
+  }
+  return userUrls;
+
+};
+
 module.exports = {urlDatabase,users,randomString,isEmailRegistered};
