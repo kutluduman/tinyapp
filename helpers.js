@@ -18,7 +18,9 @@ const users = {
   }
 };
 
-
+/*
+Generates random string.
+*/
 const randomString = () => {
   let random = Math.random().toString(36).substring(2,8);
   return random;
@@ -26,7 +28,7 @@ const randomString = () => {
 
 
 /*
-This function checks if there is an email that is same as users object email
+Checks if there is an email that is same as users email.
 */
 const isEmailRegistered = (email) => {
   for (const user in users) {
@@ -37,7 +39,10 @@ const isEmailRegistered = (email) => {
   return false;
 };
 
-
+/*
+If the database user's id match, then the urls for the
+user is matched as well.
+*/
 const urlsForUser = (id) => {
   let userUrls = {};
   for (const shortUrl in urlDatabase) {
@@ -49,6 +54,10 @@ const urlsForUser = (id) => {
 
 };
 
+/*
+Checks whether the email in the database is the same as the user's email
+that we are searching for.
+*/
 const getUserByEmail = function(email, database) {
   for (const user in database) {
     if (database[user].email === email) {
