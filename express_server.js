@@ -9,7 +9,13 @@ const {urlDatabase,users,randomString,isEmailRegistered, urlsForUser} = require(
 
 app.use(bodyParser.urlencoded({extended: true}));
 app.set('view engine', 'ejs');
-app.use(cookieParser());
+app.use(cookieSession({
+  name: 'session',
+  keys: ['greyshorthair', 'cat'],
+
+  // Cookie Options
+  maxAge: 24 * 60 * 60 * 1000 // 24 hours
+}))
 
 
 
@@ -143,4 +149,3 @@ app.get('/users.json', (req,res) => {
 app.listen(PORT, () => {
   console.log(`Example app listening on port ${PORT}!`);
 });
-
