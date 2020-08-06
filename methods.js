@@ -38,7 +38,7 @@ const isEmailRegistered = (email) => {
 
 const urlsForUser = (id) => {
   let userUrls = {};
-  for(const shortUrl in urlDatabase) {
+  for (const shortUrl in urlDatabase) {
     if (urlDatabase[shortUrl].userID === id) {
       userUrls[shortUrl] = urlDatabase[shortUrl];
     }

@@ -34,7 +34,7 @@ app.get('/urls', (req,res) => {
   } else {
     let templateVars = {
       user : users[req.cookies['user_id']],
-      urls :urlsForUser(req.cookies['user_id']) 
+      urls :urlsForUser(req.cookies['user_id'])
     };
     res.render("urls_index", templateVars);
   }
