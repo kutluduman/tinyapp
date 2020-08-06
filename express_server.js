@@ -131,6 +131,10 @@ app.post('/register', (req,res) => {
   }
 });
 
+/*
+This route helps to retrieve information from users object as JSON. The main purpose was to see
+whether the passwords were hashed or not
+*/
 app.get('/users.json', (req,res) => {
   res.json(users);
 });
