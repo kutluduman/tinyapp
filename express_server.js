@@ -97,7 +97,7 @@ app.post("/urls/:shortURL/update", (req, res) => {
 
 app.post('/login', (req,res) => {
   let user = isEmailRegistered(req.body.email);
-  if (user.password !== req.body.password || !user) {
+  if (!bcrypt.compareSync(req.body.password, user.password) || !user) {
     res.status(403);
     res.redirect('/login');
   } else {
