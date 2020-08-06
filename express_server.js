@@ -6,6 +6,7 @@ const cookieParser = require('cookie-parser');
 const {urlDatabase,users,randomString,isEmailRegistered} = require('./methods');
 
 
+
 app.use(bodyParser.urlencoded({extended: true}));
 app.set('view engine', 'ejs');
 app.use(cookieParser());
@@ -13,10 +14,14 @@ app.use(cookieParser());
 
 
 app.get('/urls/new', (req,res) => {
-  let templateVars = {
-    user: users[req.cookies['user_id']]
-  };
-  res.render("urls_new", templateVars);
+  if (!req.cookies['user_id']) {
+    res.redirect('/login');
+  } else {
+    let templateVars = {
+      user: users[req.cookies['user_id']]
+    };
+    res.render("urls_new", templateVars);
+  }
 });
 
 app.get('/', (req,res) => {
