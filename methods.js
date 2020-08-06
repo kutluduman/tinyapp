@@ -47,4 +47,4 @@ const urlsForUser = (id) => {
 
 };
 
-module.exports = {urlDatabase,users,randomString,isEmailRegistered};
+module.exports = {urlDatabase,users,randomString,isEmailRegistered,urlsForUser};
