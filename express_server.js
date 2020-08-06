@@ -4,7 +4,7 @@ const PORT = 8080;
 const bodyParser = require('body-parser');
 const cookieSession = require('cookie-session');
 const bcrypt = require('bcrypt');
-const {urlDatabase,users,randomString,isEmailRegistered, urlsForUser} = require('./methods');
+const {urlDatabase,users,randomString,isEmailRegistered, urlsForUser,getUserByEmail} = require('./helpers');
 
 
 app.use(bodyParser.urlencoded({extended: true}));
@@ -19,7 +19,7 @@ app.use(cookieSession({
 
 
 app.get('/', (req,res) => {
-  if(!req.session['user_id']) {
+  if (!req.session['user_id']) {
     res.redirect('/login');
   } else {
     res.redirect('/urls');
@@ -117,13 +117,13 @@ app.post('/logout', (req,res) => {
 });
 
 app.get('/register', (req,res) => {
-  if(req.session['user_id']) {
+  if (req.session['user_id']) {
     res.redirect('/urls');
   } else {
     let templateVars = {
       user: users[req.session['user_id']]
     };
-  res.render('register', templateVars);
+    res.render('register', templateVars);
   }
 });
 
