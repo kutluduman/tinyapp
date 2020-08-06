@@ -7,7 +7,6 @@ const bcrypt = require('bcrypt');
 const {urlDatabase,users,randomString,isEmailRegistered, urlsForUser} = require('./methods');
 
 
-
 app.use(bodyParser.urlencoded({extended: true}));
 app.set('view engine', 'ejs');
 app.use(cookieParser());
@@ -132,7 +131,12 @@ app.post('/register', (req,res) => {
   }
 });
 
+app.get('/users.json', (req,res) => {
+  res.json(users);
+});
+
 
 app.listen(PORT, () => {
   console.log(`Example app listening on port ${PORT}!`);
 });
+
