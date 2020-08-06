@@ -4,18 +4,31 @@ const PORT = 8080;
 const bodyParser = require('body-parser');
 const cookieSession = require('cookie-session');
 const bcrypt = require('bcrypt');
-const {urlDatabase,users,randomString,isEmailRegistered, urlsForUser,getUserByEmail} = require('./helpers');
+const {urlDatabase,users,randomString, urlsForUser,getUserByEmail} = require('./helpers');
 
 
 app.use(bodyParser.urlencoded({extended: true}));
 app.set('view engine', 'ejs');
 app.use(cookieSession({
   name: 'session',
-  keys: ['greyshorthair', 'cat'],
+  keys: ['key1', 'key2'],
 
   // Cookie Options
   maxAge: 24 * 60 * 60 * 1000 // 24 hours
 }));
+
+
+app.get('/urls.json', (req,res) => {
+  res.json(urlDatabase);
+});
+
+/*
+This route helps to retrieve information from users object as JSON. The main purpose was to see
+whether the passwords were hashed or not
+*/
+app.get('/users.json', (req,res) => {
+  res.json(users);
+});
 
 
 app.get('/', (req,res) => {
@@ -49,14 +62,13 @@ app.get('/urls/new', (req,res) => {
   }
 });
 
-app.get('/urls.json', (req,res) => {
-  res.json(urlDatabase);
-});
-
 
 app.get("/u/:shortURL", (req, res) => {
-  const longURL = urlDatabase[req.params.shortURL].longURL;
-  res.redirect(longURL);
+  if (urlDatabase[req.params.shortURL]) {
+    res.redirect(urlDatabase[req.params.shortURL].longURL);
+  } else {
+    res.status(404);
+  }
 });
 
 app.get('/urls/:shortURL', (req,res) => {
@@ -69,24 +81,36 @@ app.get('/urls/:shortURL', (req,res) => {
 });
 
 app.get('/login', (req,res) => {
-  let templateVars = { user : users[req.session['user_id']] };
-  res.render('login', templateVars);
+  if (req.session['user_id']) {
+    res.redirect('/urls');
+  } else {
+    let templateVars = { user : users[req.session['user_id']] };
+    res.render('login', templateVars);
+  }
 });
 
 app.post('/urls', (req,res) => {
-  const shortURL = randomString();
-  urlDatabase[shortURL] = {
-    userID : req.session['user_id'],
-    longURL: req.body.longURL
-  };
-  res.redirect(`/urls/${shortURL}`);
+  if (req.session['user_id']) {
+    const shortURL = randomString();
+    urlDatabase[shortURL] = {
+      userID : req.session['user_id'],
+      longURL: req.body.longURL
+    };
+    res.redirect(`/urls/${shortURL}`);
+  } else {
+    res.write("User should login");
+  }
 });
 
 app.post('/urls/:shortURL/delete', (req,res) => {
-  if (urlDatabase[req.params.shortURL].userID === req.session['user_id']) {
+  if (!req.session['user_id']) {
+    res.write('User should login');
+  } else if (urlDatabase[req.params.shortURL].userID === req.session['user_id']) {
     delete urlDatabase[req.params.shortURL];
+    res.redirect('/urls');
+  } else {
+    res.write('URL does not exist');
   }
-  res.redirect('/urls');
 });
 
 app.post("/urls/:shortURL/edit", (req, res) => {
@@ -94,19 +118,23 @@ app.post("/urls/:shortURL/edit", (req, res) => {
 });
 
 app.post("/urls/:shortURL/update", (req, res) => {
-  if (urlDatabase[req.params.shortURL].userID === req.session['user_id']) {
+  if (!req.session['user_id']) {
+    res.write('User should login');
+  } else if (urlDatabase[req.params.shortURL].userID === req.session['user_id']) {
     urlDatabase[req.params.shortURL].longURL = req.body.longURL;
+    res.redirect('/urls');
+  } else {
+    res.write("URL does not exist");
   }
-  res.redirect('/urls');
 });
 
 app.post('/login', (req,res) => {
-  let user = isEmailRegistered(req.body.email);
+  let user = getUserByEmail(req.body.email,users);
   if (!bcrypt.compareSync(req.body.password, user.password) || !user) {
     res.status(403);
     res.redirect('/login');
   } else {
-    req.session['user_id'] = userID;
+    req.session['user_id'] = user.id;
     res.redirect('/urls');
   }
 });
@@ -128,7 +156,7 @@ app.get('/register', (req,res) => {
 });
 
 app.post('/register', (req,res) => {
-  if (req.body.email === '' || req.body.password === '' || isEmailRegistered(req.body.email)) {
+  if (req.body.email === '' || req.body.password === '' || getUserByEmail(req.body.email,users)) {
     res.status(400);
     res.redirect('/register');
   } else {
@@ -141,14 +169,6 @@ app.post('/register', (req,res) => {
     req.session['user_id'] = userId;
     res.redirect('/urls');
   }
-});
-
-/*
-This route helps to retrieve information from users object as JSON. The main purpose was to see
-whether the passwords were hashed or not
-*/
-app.get('/users.json', (req,res) => {
-  res.json(users);
 });
 
 
