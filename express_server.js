@@ -3,7 +3,7 @@ const app = express();
 const PORT = 8080;
 const bodyParser = require('body-parser');
 const cookieParser = require('cookie-parser');
-const {urlDatabase,users,randomString,isEmailRegistered} = require('./methods');
+const {urlDatabase,users,randomString,isEmailRegistered, urlsForUser} = require('./methods');
 
 
 
@@ -29,11 +29,15 @@ app.get('/', (req,res) => {
 });
 
 app.get('/urls', (req,res) => {
-  let templateVars = {
-    user: users[req.cookies['user_id']],
-    urls : urlDatabase
-  };
-  res.render('urls_index.ejs',templateVars);
+  if (!req.cookies['user_id']) {
+    res.redirect('/login');
+  } else {
+    let templateVars = {
+      user : users[req.cookies['user_id']],
+      urls :urlsForUser(req.cookies['user_id']) 
+    };
+    res.render("urls_index", templateVars);
+  }
 });
 
 app.get('/urls.json', (req,res) => {
