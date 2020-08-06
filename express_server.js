@@ -17,20 +17,24 @@ app.use(cookieSession({
   maxAge: 24 * 60 * 60 * 1000 // 24 hours
 }));
 
-
+/*
+Retrives the urlDatabase object as JSON. 
+*/
 app.get('/urls.json', (req,res) => {
   res.json(urlDatabase);
 });
 
 /*
-This route helps to retrieve information from users object as JSON. The main purpose was to see
-whether the passwords were hashed or not
+Helps to retrieve information from users object as JSON. The main purpose was to see
+whether the passwords were hashed or not.
 */
 app.get('/users.json', (req,res) => {
   res.json(users);
 });
 
-
+/*
+If logged in, route redirects to /urls, if not redirects to /login.
+*/
 app.get('/', (req,res) => {
   if (!req.session['user_id']) {
     res.redirect('/login');
@@ -39,6 +43,9 @@ app.get('/', (req,res) => {
   }
 });
 
+/*
+If logged in, displays the urls that user created.
+*/
 app.get('/urls', (req,res) => {
   if (!req.session['user_id']) {
     res.redirect('/login');
@@ -51,6 +58,9 @@ app.get('/urls', (req,res) => {
   }
 });
 
+/*
+Checks whether the user is logged in before displaying the page.
+*/
 app.get('/urls/new', (req,res) => {
   if (!req.session['user_id']) {
     res.redirect('/login');
@@ -62,7 +72,9 @@ app.get('/urls/new', (req,res) => {
   }
 });
 
-
+/*
+Redirects to longURL.
+*/
 app.get("/u/:shortURL", (req, res) => {
   if (urlDatabase[req.params.shortURL]) {
     res.redirect(urlDatabase[req.params.shortURL].longURL);
@@ -71,6 +83,9 @@ app.get("/u/:shortURL", (req, res) => {
   }
 });
 
+/*
+Updates the longURL with the shortURL passed.
+*/
 app.get('/urls/:shortURL', (req,res) => {
   let templateVars = {
     user: users[req.session['user_id']],
@@ -80,6 +95,9 @@ app.get('/urls/:shortURL', (req,res) => {
   res.render("urls_show", templateVars);
 });
 
+/*
+If logged in, redirects to /urls page.
+*/
 app.get('/login', (req,res) => {
   if (req.session['user_id']) {
     res.redirect('/urls');
@@ -89,6 +107,10 @@ app.get('/login', (req,res) => {
   }
 });
 
+/*
+New URL is added to the database and then the route
+redirects to short URL.
+*/
 app.post('/urls', (req,res) => {
   if (req.session['user_id']) {
     const shortURL = randomString();
@@ -102,6 +124,9 @@ app.post('/urls', (req,res) => {
   }
 });
 
+/*
+If the URL belongs to the user, URL is deleted.
+*/
 app.post('/urls/:shortURL/delete', (req,res) => {
   if (!req.session['user_id']) {
     res.write('User should login');
@@ -113,10 +138,16 @@ app.post('/urls/:shortURL/delete', (req,res) => {
   }
 });
 
+/*
+Redirects to urls/shorturl parameter.
+*/
 app.post("/urls/:shortURL/edit", (req, res) => {
   res.redirect(`/urls/${req.params.shortURL}`);
 });
 
+/*
+Updates the database longURL to request body's url.
+*/
 app.post("/urls/:shortURL/update", (req, res) => {
   if (!req.session['user_id']) {
     res.write('User should login');
@@ -128,6 +159,10 @@ app.post("/urls/:shortURL/update", (req, res) => {
   }
 });
 
+/*
+If valid credentials is entered, then the user is redirected
+to /urls page, if not to /login page.
+*/
 app.post('/login', (req,res) => {
   let user = getUserByEmail(req.body.email,users);
   if (!bcrypt.compareSync(req.body.password, user.password) || !user) {
@@ -139,11 +174,18 @@ app.post('/login', (req,res) => {
   }
 });
 
+/*
+Clears cookies and redirects to /urls page.
+*/
 app.post('/logout', (req,res) => {
   req.session = null;
   res.redirect('/urls');
 });
 
+/*
+If logged in, redirects to /urls page, if not,
+then redirected to register page.
+*/
 app.get('/register', (req,res) => {
   if (req.session['user_id']) {
     res.redirect('/urls');
@@ -155,6 +197,11 @@ app.get('/register', (req,res) => {
   }
 });
 
+/*
+If the account is created with true credentials, then
+route redirects to /urls page. If not, gives 400 status
+code and redirects to /register page.
+*/
 app.post('/register', (req,res) => {
   if (req.body.email === '' || req.body.password === '' || getUserByEmail(req.body.email,users)) {
     res.status(400);
