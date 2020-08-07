@@ -167,8 +167,10 @@ to /urls page, if not to /login page.
 app.post('/login', (req,res) => {
   let user = getUserByEmail(req.body.email,users);
   if (!bcrypt.compareSync(req.body.password, user.password) || !user) {
-    res.status(403);
-    res.redirect('/login');
+    let templateVars = {
+      user: users[req.session['user_id']],
+    };
+    res.render("login", templateVars);
   } else {
     req.session['user_id'] = user.id;
     res.redirect('/urls');
