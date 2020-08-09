@@ -18,18 +18,16 @@ const users = {
   }
 };
 
-/*
-Generates random string.
-*/
+
+// Generates random string.
 const randomString = () => {
   let random = Math.random().toString(36).substring(2,8);
   return random;
 };
 
 
-/*
-Checks if there is an email that is same as users email.
-*/
+
+// Checks if there is an email that is same as users email.
 const isEmailRegistered = (email) => {
   for (const user in users) {
     if (users[user].email === email) {

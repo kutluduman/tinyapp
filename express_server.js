@@ -17,9 +17,8 @@ app.use(cookieSession({
   maxAge: 24 * 60 * 60 * 1000 // 24 hours
 }));
 
-/*
-Retrives the urlDatabase object as JSON.
-*/
+
+// Retrives the urlDatabase object as JSON.
 app.get('/urls.json', (req,res) => {
   res.json(urlDatabase);
 });
@@ -32,9 +31,8 @@ app.get('/users.json', (req,res) => {
   res.json(users);
 });
 
-/*
-If logged in, route redirects to /urls, if not redirects to /login.
-*/
+
+// If logged in, route redirects to /urls, if not redirects to /login.
 app.get('/', (req,res) => {
   if (!req.session['user_id']) {
     res.redirect('/login');
@@ -43,9 +41,8 @@ app.get('/', (req,res) => {
   }
 });
 
-/*
-If logged in, displays the urls that user created.
-*/
+
+// If logged in, displays the urls that user created.
 app.get('/urls', (req,res) => {
   if (!req.session['user_id']) {
     res.redirect('/login');
@@ -58,9 +55,8 @@ app.get('/urls', (req,res) => {
   }
 });
 
-/*
-Checks whether the user is logged in before displaying the page.
-*/
+
+// Checks whether the user is logged in before displaying the page.
 app.get('/urls/new', (req,res) => {
   if (!req.session['user_id']) {
     res.redirect('/login');
@@ -72,9 +68,8 @@ app.get('/urls/new', (req,res) => {
   }
 });
 
-/*
-Redirects to longURL.
-*/
+
+// Redirects to longURL.
 app.get('/u/:shortURL', (req, res) => {
   if (urlDatabase[req.params.shortURL]) {
     res.redirect(urlDatabase[req.params.shortURL].longURL);
@@ -83,9 +78,8 @@ app.get('/u/:shortURL', (req, res) => {
   }
 });
 
-/*
-Updates the longURL with the shortURL passed.
-*/
+
+// Updates the longURL with the shortURL passed.
 app.get('/urls/:shortURL', (req,res) => {
   let templateVars = {
     user: users[req.session['user_id']],
@@ -125,9 +119,8 @@ app.post('/urls', (req,res) => {
   }
 });
 
-/*
-If the URL belongs to the user, URL is deleted.
-*/
+
+// If the URL belongs to the user, URL is deleted.
 app.post('/urls/:shortURL/delete', (req,res) => {
   if (!req.session['user_id']) {
     res.write('User should login');
@@ -139,16 +132,14 @@ app.post('/urls/:shortURL/delete', (req,res) => {
   }
 });
 
-/*
-Redirects to urls/shorturl parameter.
-*/
+
+// Redirects to urls/shorturl parameter.
 app.post('/urls/:shortURL/edit', (req, res) => {
   res.redirect(`/urls/${req.params.shortURL}`);
 });
 
-/*
-Updates the database longURL to request body's url.
-*/
+
+// Updates the database longURL to request body's url.
 app.post('/urls/:shortURL/update', (req, res) => {
   if (!req.session['user_id']) {
     res.write('User should login');
@@ -177,9 +168,8 @@ app.post('/login', (req,res) => {
   }
 });
 
-/*
-Clears cookies and redirects to /urls page.
-*/
+
+// Clears cookies and redirects to /urls page.
 app.post('/logout', (req,res) => {
   req.session = null;
   res.redirect('/urls');
