@@ -18,20 +18,6 @@ app.use(cookieSession({
 }));
 
 
-// Retrives the urlDatabase object as JSON.
-app.get('/urls.json', (req,res) => {
-  res.json(urlDatabase);
-});
-
-/*
-Helps to retrieve information from users object as JSON. The main purpose is to see
-whether the passwords were hashed or not.
-*/
-app.get('/users.json', (req,res) => {
-  res.json(users);
-});
-
-
 // If logged in, route redirects to /urls, if not redirects to /login.
 app.get('/', (req,res) => {
   if (!req.session['user_id']) {
@@ -66,14 +52,19 @@ app.get('/urls/new', (req,res) => {
   }
 });
 
-
-// Redirects to longURL.
-app.get('/u/:shortURL', (req, res) => {
-  if (urlDatabase[req.params.shortURL]) {
-    res.redirect(urlDatabase[req.params.shortURL].longURL);
+/*
+If logged in, redirects to /urls page, if not,
+then redirected to register page.
+*/
+app.get('/register', (req,res) => {
+  if (req.session.user_id) {
+    res.redirect('/urls');
   } else {
-    res.status(404);
-    res.send('<h2> Invalid URL </h2>');
+    const templateVars = {
+      user: users[req.session['user_id']],
+      err:''
+    };
+    res.render('register', templateVars);
   }
 });
 
@@ -86,7 +77,7 @@ app.get('/urls/:shortURL', (req,res) => {
   const templateVars = {
     user: users[req.session['user_id']],
     shortURL: req.params.shortURL,
-    url: urlDatabase[req.param.shortURL],
+    longURL: urlDatabase[req.param.shortURL],
     err: urlDatabase[req.params.shortURL] ? '' : 'Invalid Link'
   };
   if (!urlDatabase[req.params.shortURL]) {
@@ -98,6 +89,18 @@ app.get('/urls/:shortURL', (req,res) => {
   }
   res.render('urls_show', templateVars);
 });
+
+
+// Redirects to longURL.
+app.get('/u/:shortURL', (req, res) => {
+  if (urlDatabase[req.params.shortURL]) {
+    res.redirect(urlDatabase[req.params.shortURL].longURL);
+  } else {
+    res.status(404);
+    res.send('<p>Invalid URL </p>');
+  }
+});
+
 
 /*
 If logged in, redirects to /urls page, if not,
@@ -125,7 +128,7 @@ app.post('/urls', (req,res) => {
     };
     res.redirect(`/urls/${shortURL}`);
   } else {
-    res.send('<h2>User should login</h2>');
+    res.send('<p>User should login</p>');
   }
 });
 
@@ -133,12 +136,12 @@ app.post('/urls', (req,res) => {
 // If the URL belongs to the user, URL is deleted.
 app.delete('/urls/:shortURL/delete', (req,res) => {
   if (!req.session['user_id']) {
-    res.send('<h2>User should login</h2>');
+    res.send('<p>User should login</p>');
   } else if (urlDatabase[req.params.shortURL].userID === req.session['user_id']) {
     delete urlDatabase[req.params.shortURL];
     res.redirect('/urls');
   } else {
-    res.send('<h2>URL does not exist</h2>');
+    res.send('<p>URL does not exist</p>');
   }
 });
 
@@ -152,12 +155,12 @@ app.post('/urls/:shortURL/edit', (req, res) => {
 // Updates the database longURL to request body's url.
 app.post('/urls/:shortURL/update', (req, res) => {
   if (!req.session['user_id']) {
-    res.send('<h2>User should login</h2>');
+    res.send('<p>User should login</p>');
   } else if (urlDatabase[req.params.shortURL].userID === req.session['user_id']) {
     urlDatabase[req.params.shortURL].longURL = req.body.longURL;
     res.redirect('/urls');
   } else {
-    res.send('<h2>URL does not exist</h2>');
+    res.send('<p>URL does not exist</p>');
   }
 });
 
@@ -179,28 +182,12 @@ app.post('/login', (req,res) => {
   }
 });
 
-
 // Clears cookies and redirects to /urls page.
 app.post('/logout', (req,res) => {
   req.session = null;
   res.redirect('/urls');
 });
 
-/*
-If logged in, redirects to /urls page, if not,
-then redirected to register page.
-*/
-app.get('/register', (req,res) => {
-  if (req.session['user_id']) {
-    res.redirect('/urls');
-  } else {
-    const templateVars = {
-      user: users[req.session['user_id']],
-      err:''
-    };
-    res.render('register', templateVars);
-  }
-});
 
 /*
 If the account is created with true credentials, then
