@@ -44,15 +44,12 @@ app.get('/', (req,res) => {
 
 // If logged in, displays the urls that user created.
 app.get('/urls', (req,res) => {
-  if (!req.session['user_id']) {
-    res.redirect('/login');
-  } else {
-    let templateVars = {
-      user : users[req.session['user_id']],
-      urls :urlsForUser(req.session['user_id'])
-    };
-    res.render('urls_index', templateVars);
-  }
+  const templateVars = {
+    user: users[req.session['user_id']],
+    urls: urlsForUser(req.session['user_id'],urlDatabase),
+    err: req.session['user_id']? '' : 'Login with your credentials'
+  };
+  res.render('urls_index',templateVars);
 });
 
 
@@ -61,8 +58,9 @@ app.get('/urls/new', (req,res) => {
   if (!req.session['user_id']) {
     res.redirect('/login');
   } else {
-    let templateVars = {
-      user: users[req.session['user_id']]
+    const templateVars = {
+      user: users[req.session['user_id']],
+      err: ''
     };
     res.render('urls_new', templateVars);
   }
@@ -75,6 +73,7 @@ app.get('/u/:shortURL', (req, res) => {
     res.redirect(urlDatabase[req.params.shortURL].longURL);
   } else {
     res.status(404);
+    res.send('<h2> Invalid URL </h2>');
   }
 });
 
@@ -84,11 +83,19 @@ When the page is rendered, the route passes the
 templateVars object values to the page.
 */
 app.get('/urls/:shortURL', (req,res) => {
-  let templateVars = {
+  const templateVars = {
     user: users[req.session['user_id']],
     shortURL: req.params.shortURL,
-    longURL: urlDatabase[req.param.shortURL]
+    url: urlDatabase[req.param.shortURL],
+    err: urlDatabase[req.params.shortURL] ? '' : 'Invalid Link'
   };
+  if (!urlDatabase[req.params.shortURL]) {
+    templateVars.err = 'Invalid Link.';
+  } else if (!req.session['user_id']) {
+    templateVars.err = 'User is not logged in';
+  } else if (urlDatabase[req.params.shortURL].userID !== req.session['user_id']) {
+    templateVars.err = 'User doesnt have the URL';
+  }
   res.render('urls_show', templateVars);
 });
 
@@ -100,7 +107,7 @@ app.get('/login', (req,res) => {
   if (req.session['user_id']) {
     res.redirect('/urls');
   } else {
-    let templateVars = { user : users[req.session['user_id']] };
+    const templateVars = { user : users[req.session['user_id']],err : '' };
     res.render('login', templateVars);
   }
 });
@@ -118,20 +125,20 @@ app.post('/urls', (req,res) => {
     };
     res.redirect(`/urls/${shortURL}`);
   } else {
-    res.write('User should login');
+    res.send('<h2>User should login</h2>');
   }
 });
 
 
 // If the URL belongs to the user, URL is deleted.
-app.post('/urls/:shortURL/delete', (req,res) => {
+app.delete('/urls/:shortURL/delete', (req,res) => {
   if (!req.session['user_id']) {
-    res.write('User should login');
+    res.send('<h2>User should login</h2>');
   } else if (urlDatabase[req.params.shortURL].userID === req.session['user_id']) {
     delete urlDatabase[req.params.shortURL];
     res.redirect('/urls');
   } else {
-    res.write('URL does not exist');
+    res.send('<h2>URL does not exist</h2>');
   }
 });
 
@@ -145,12 +152,12 @@ app.post('/urls/:shortURL/edit', (req, res) => {
 // Updates the database longURL to request body's url.
 app.post('/urls/:shortURL/update', (req, res) => {
   if (!req.session['user_id']) {
-    res.write('User should login');
+    res.send('<h2>User should login</h2>');
   } else if (urlDatabase[req.params.shortURL].userID === req.session['user_id']) {
     urlDatabase[req.params.shortURL].longURL = req.body.longURL;
     res.redirect('/urls');
   } else {
-    res.write('URL does not exist');
+    res.send('<h2>URL does not exist</h2>');
   }
 });
 
@@ -161,8 +168,9 @@ to /urls page, if not to /login page.
 app.post('/login', (req,res) => {
   let user = getUserByEmail(req.body.email,users);
   if (!bcrypt.compareSync(req.body.password, user.password) || !user) {
-    let templateVars = {
+    const templateVars = {
       user: users[req.session['user_id']],
+      err: 'Incorrect password or Username does not exist'
     };
     res.render('login', templateVars);
   } else {
@@ -186,8 +194,9 @@ app.get('/register', (req,res) => {
   if (req.session['user_id']) {
     res.redirect('/urls');
   } else {
-    let templateVars = {
-      user: users[req.session['user_id']]
+    const templateVars = {
+      user: users[req.session['user_id']],
+      err:''
     };
     res.render('register', templateVars);
   }
@@ -199,11 +208,19 @@ route redirects to /urls page. If not, gives 400 status
 code and redirects to /register page.
 */
 app.post('/register', (req,res) => {
-  if (req.body.email === '' || req.body.password === '' || getUserByEmail(req.body.email,users)) {
-    res.status(400);
-    res.redirect('/register');
+  if (getUserByEmail(req.body.email,users)) {
+    const templateVars = {
+      user: users[req.session['user_id']],
+      err: 'Email exists'
+    };
+    res.render('register',templateVars);
+  } else if (req.body.email === '' || req.body.password === '') {
+    const templateVars = {
+      user: users[req.session['user_id']],
+      err: 'Please fill in the boxes with valid credentials'
+    };
   } else {
-    let userId = randomString();
+    const userId = randomString();
     users[userId] = {
       id: userId,
       email: req.body.email,
@@ -213,7 +230,6 @@ app.post('/register', (req,res) => {
     res.redirect('/urls');
   }
 });
-
 
 app.listen(PORT, () => {
   console.log(`Example app listening on port ${PORT}!`);
