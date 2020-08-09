@@ -15,6 +15,9 @@
 
 <main style="margin: 1em;">
   <h3>Create Account</h3>
+  <% if(error) { %>
+    <h2 style="color: red;"><%= err %></h2>
+  <% } %>
   <form action="/register" method="POST">
     <div class="form-group mb-2">
       <label for="email">Email address</label>

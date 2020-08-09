@@ -7,6 +7,9 @@
 </head>
 <%- include('partials/_header') %>
 <body>
+  <% if(error) { %>
+    <h2 style="color: red;"><%= err %></h2>
+  <% } else { %>
   <div class="card text-center">
       <div class="card-header"></div>
       <div class="card-body">
