@@ -79,7 +79,10 @@ app.get('/u/:shortURL', (req, res) => {
 });
 
 
-// Updates the longURL with the shortURL passed.
+/*
+When the page is rendered, the route passes the
+templateVars object values to the page.
+*/
 app.get('/urls/:shortURL', (req,res) => {
   let templateVars = {
     user: users[req.session['user_id']],
