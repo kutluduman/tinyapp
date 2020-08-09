@@ -47,7 +47,7 @@ app.get('/urls', (req,res) => {
   const templateVars = {
     user: users[req.session['user_id']],
     urls: urlsForUser(req.session['user_id'],urlDatabase),
-    err: req.session['user_id']? '' : 'Login with your credentials'
+    err: req.session['user_id'] ? '' : 'Login with your credentials'
   };
   res.render('urls_index',templateVars);
 });
