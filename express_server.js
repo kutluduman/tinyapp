@@ -54,7 +54,7 @@ app.get('/urls', (req,res) => {
       user : users[req.session['user_id']],
       urls :urlsForUser(req.session['user_id'])
     };
-    res.render("urls_index", templateVars);
+    res.render('urls_index', templateVars);
   }
 });
 
@@ -68,14 +68,14 @@ app.get('/urls/new', (req,res) => {
     let templateVars = {
       user: users[req.session['user_id']]
     };
-    res.render("urls_new", templateVars);
+    res.render('urls_new', templateVars);
   }
 });
 
 /*
 Redirects to longURL.
 */
-app.get("/u/:shortURL", (req, res) => {
+app.get('/u/:shortURL', (req, res) => {
   if (urlDatabase[req.params.shortURL]) {
     res.redirect(urlDatabase[req.params.shortURL].longURL);
   } else {
@@ -92,7 +92,7 @@ app.get('/urls/:shortURL', (req,res) => {
     shortURL: req.params.shortURL,
     longURL: urlDatabase[req.param.shortURL]
   };
-  res.render("urls_show", templateVars);
+  res.render('urls_show', templateVars);
 });
 
 /*
@@ -121,7 +121,7 @@ app.post('/urls', (req,res) => {
     };
     res.redirect(`/urls/${shortURL}`);
   } else {
-    res.write("User should login");
+    res.write('User should login');
   }
 });
 
@@ -142,21 +142,21 @@ app.post('/urls/:shortURL/delete', (req,res) => {
 /*
 Redirects to urls/shorturl parameter.
 */
-app.post("/urls/:shortURL/edit", (req, res) => {
+app.post('/urls/:shortURL/edit', (req, res) => {
   res.redirect(`/urls/${req.params.shortURL}`);
 });
 
 /*
 Updates the database longURL to request body's url.
 */
-app.post("/urls/:shortURL/update", (req, res) => {
+app.post('/urls/:shortURL/update', (req, res) => {
   if (!req.session['user_id']) {
     res.write('User should login');
   } else if (urlDatabase[req.params.shortURL].userID === req.session['user_id']) {
     urlDatabase[req.params.shortURL].longURL = req.body.longURL;
     res.redirect('/urls');
   } else {
-    res.write("URL does not exist");
+    res.write('URL does not exist');
   }
 });
 
@@ -170,7 +170,7 @@ app.post('/login', (req,res) => {
     let templateVars = {
       user: users[req.session['user_id']],
     };
-    res.render("login", templateVars);
+    res.render('login', templateVars);
   } else {
     req.session['user_id'] = user.id;
     res.redirect('/urls');
