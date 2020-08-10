@@ -173,7 +173,7 @@ app.post('/login', (req,res) => {
   if (!user || !bcrypt.compareSync(req.body.password, user.password)) {
     const templateVars = {
       user: users[req.session['user_id']],
-      err: 'Incorrect password or Username does not exist'
+      err: 'Incorrect password or email address'
     };
     res.render('login', templateVars);
   } else {
@@ -206,6 +206,7 @@ app.post('/register', (req,res) => {
       user: users[req.session['user_id']],
       err: 'Please fill in the boxes with valid credentials'
     };
+    res.render('register',templateVars);
   } else {
     const userId = randomString();
     users[userId] = {
