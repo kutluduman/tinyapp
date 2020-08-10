@@ -134,7 +134,7 @@ app.post('/urls', (req,res) => {
 
 
 // If the URL belongs to the user, URL is deleted.
-app.delete('/urls/:shortURL/delete', (req,res) => {
+app.post('/urls/:shortURL/delete', (req,res) => {
   if (!req.session['user_id']) {
     res.send('<p>User should login</p>');
   } else if (urlDatabase[req.params.shortURL].userID === req.session['user_id']) {
@@ -170,7 +170,7 @@ to /urls page, if not to /login page.
 */
 app.post('/login', (req,res) => {
   let user = getUserByEmail(req.body.email,users);
-  if (!bcrypt.compareSync(req.body.password, user.password) || !user) {
+  if (!user || !bcrypt.compareSync(req.body.password, user.password)) {
     const templateVars = {
       user: users[req.session['user_id']],
       err: 'Incorrect password or Username does not exist'
